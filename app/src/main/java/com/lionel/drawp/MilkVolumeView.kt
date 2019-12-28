@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -15,6 +17,7 @@ class MilkVolumeView(context: Context, attrs: AttributeSet?) : View(context, att
     companion object {
         const val VOLUME_PER_BOTTLE_IN_ML: Int = 1000
         const val WIDTH_BOTTLE_IN_DP = 65
+        const val WIDTH_BOTTLE_COVER_IN_DP = 53
         const val WIDTH_PAINT_STROKE_IN_DP = 6
         const val MAX_NUM_BOTTLE = 4
         const val MAX_NUM_BOTTLE_SCALE = 4
@@ -26,6 +29,12 @@ class MilkVolumeView(context: Context, attrs: AttributeSet?) : View(context, att
 
 
     private val redPaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.colorRed)
+        isAntiAlias = true
+        style = Paint.Style.STROKE
+    }
+
+    private val redThickPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.colorRed)
         isAntiAlias = true
         style = Paint.Style.STROKE
@@ -76,18 +85,23 @@ class MilkVolumeView(context: Context, attrs: AttributeSet?) : View(context, att
         }
 
 
-        //for 瓶身參數
+        //瓶身參數
         val widthBottle = DimensionUtil.turnDpToPx(context, WIDTH_BOTTLE_IN_DP)
-        var left = redPaint.strokeWidth
+        var left = redThickPaint.strokeWidth
         var right = widthBottle
         val top = height * 1 / 3F
-        val bottom = height.toFloat() - redPaint.strokeWidth
+        val bottom = height.toFloat() - redThickPaint.strokeWidth
 
         val heightBottle = bottom - top
         val marginBottle = (width - (DimensionUtil.turnDpToPx(context, (WIDTH_BOTTLE_IN_DP) * MAX_NUM_BOTTLE) + WIDTH_PAINT_STROKE_IN_DP * 2)) / (MAX_NUM_BOTTLE - 1)   //佔用n個奶瓶和兩條線(左右各一條), 之間的空隙均分
         val marginStart = DimensionUtil.turnDpToPx(context, WIDTH_BOTTLE_IN_DP) + marginBottle
         val marginBottleScale = heightBottle / (MAX_NUM_BOTTLE_SCALE + 1)
         val radius = DimensionUtil.turnDpToPx(context, 10)
+
+        //瓶蓋參數
+        val widthBottleCover = DimensionUtil.turnDpToPx(context, WIDTH_BOTTLE_COVER_IN_DP)
+        val marginBottleCover = (widthBottle - widthBottleCover) / 2
+        val bitmapCover = (ContextCompat.getDrawable(context, R.drawable.ic_cover) as BitmapDrawable).bitmap
 
         //畫出奶瓶數量
         for (i in 1..numBottle) {
@@ -100,6 +114,10 @@ class MilkVolumeView(context: Context, attrs: AttributeSet?) : View(context, att
                 1 -> 0F
                 else -> marginStart
             }
+
+            //畫瓶蓋
+            val rectCover = Rect((left + marginBottleCover).toInt(), 0, (right - marginBottleCover).toInt(), (top - marginBottleCover).toInt())
+            canvas.drawBitmap(bitmapCover, null, rectCover, null)
 
             //畫奶量
             if (i == numBottle && milkVolume % VOLUME_PER_BOTTLE_IN_ML != 0) {            //沒滿
@@ -114,14 +132,14 @@ class MilkVolumeView(context: Context, attrs: AttributeSet?) : View(context, att
             }
 
             //畫瓶身
-            canvas.drawRoundRect(left, top, right, bottom, radius, radius, redPaint)
+            canvas.drawRoundRect(left, top, right, bottom, radius, radius, redThickPaint)
 
             //畫刻線
             for (j in 1..MAX_NUM_BOTTLE_SCALE) {
                 Path().apply {
                     moveTo(left, bottom - (marginBottleScale * j))
                     lineTo(right - (widthBottle / 2), bottom - (marginBottleScale * j))
-                    canvas.drawPath(this, redPaint)
+                    canvas.drawPath(this, redThickPaint)
                 }
             }
         }
