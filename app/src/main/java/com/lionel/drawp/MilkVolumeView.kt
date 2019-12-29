@@ -28,12 +28,6 @@ class MilkVolumeView(context: Context, attrs: AttributeSet?) : View(context, att
     private var milkVolume: Int = 0
 
 
-    private val redPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.colorRed)
-        isAntiAlias = true
-        style = Paint.Style.STROKE
-    }
-
     private val redThickPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.colorRed)
         isAntiAlias = true
