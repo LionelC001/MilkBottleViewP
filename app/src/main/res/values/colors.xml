@@ -6,4 +6,9 @@
 
     <color name="colorRed">#FD4337</color>
     <color name="colorPink">#FFB5B0</color>
+
+    <color name="colorLightGray">#EAF0F4</color>
+    <color name="colorGray">#A7ACB2</color>
+    <color name="colorDeepGray">#525B67</color>
+    <color name="colorBlue">#6EA7E8</color>
 </resources>
