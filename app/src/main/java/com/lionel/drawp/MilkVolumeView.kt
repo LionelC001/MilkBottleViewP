@@ -7,6 +7,7 @@ import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
 
@@ -40,7 +41,7 @@ class MilkVolumeView(context: Context, attrs: AttributeSet?) : View(context, att
         color = ContextCompat.getColor(context, R.color.colorPink)
     }
 
-    fun setVolume(milkVolume: Int) {
+    fun setData(milkVolume: Int) {
         this.milkVolume = milkVolume
         invalidate()
     }
@@ -97,8 +98,8 @@ class MilkVolumeView(context: Context, attrs: AttributeSet?) : View(context, att
         val marginBottleCover = (widthBottle - widthBottleCover) / 2
         val bitmapCover = (ContextCompat.getDrawable(context, R.drawable.ic_cover) as BitmapDrawable).bitmap
 
-        //畫出奶瓶數量
-        for (i in 1..numBottle) {
+        //畫出奶瓶數量, 最多n瓶
+        for (i in 1..if (numBottle <= MAX_NUM_BOTTLE) numBottle else MAX_NUM_BOTTLE) {
             left += when (i) {
                 1 -> 0F
                 else -> marginStart
@@ -114,7 +115,7 @@ class MilkVolumeView(context: Context, attrs: AttributeSet?) : View(context, att
             canvas.drawBitmap(bitmapCover, null, rectCover, null)
 
             //畫奶量
-            if (i == numBottle && milkVolume % VOLUME_PER_BOTTLE_IN_ML != 0) {            //沒滿
+            if (i == numBottle && milkVolume % VOLUME_PER_BOTTLE_IN_ML != 0 || milkVolume == 0) {  //沒滿
                 Path().apply {
                     val topMilk = bottom - (heightBottle * (milkVolume % VOLUME_PER_BOTTLE_IN_ML) / VOLUME_PER_BOTTLE_IN_ML)
                     val radii = floatArrayOf(0F, 0F, 0F, 0F, radius, radius, radius, radius)
@@ -122,7 +123,7 @@ class MilkVolumeView(context: Context, attrs: AttributeSet?) : View(context, att
                     canvas.drawPath(this, pinkPaint)
                 }
             } else {
-                canvas.drawRoundRect(left, top, right, bottom, radius, radius, pinkPaint)   //滿瓶
+                canvas.drawRoundRect(left, top, right, bottom, radius, radius, pinkPaint)          //滿瓶
             }
 
             //畫瓶身
