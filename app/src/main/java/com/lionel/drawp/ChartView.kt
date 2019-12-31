@@ -84,28 +84,31 @@ class ChartView(context: Context, attr: AttributeSet?) : View(context, attr) {
     }
 
     private fun drawChart(canvas: Canvas) {
-        //畫X軸標題
+        //畫Y軸標題
         canvas.drawText("分鐘", 0F, grayPaint.textSize, grayPaint)
 
-        //畫X軸座標
+        //畫Y軸座標
         var bottomMinute = height - DimensionUtil.turnDpToPx(context, MARGIN_CHART_BOTTOM)
-        val leftMinute = deepGrayPaint.textSize * 0.5F
+        var leftMinute = deepGrayPaint.textSize * 0.5F
         val marginMinute = (height - DimensionUtil.turnDpToPx(context, MARGIN_CHART_BOTTOM + MARGIN_CHART_TOP)) / ((MAX_MINUTE_VALUE - MIN_MINUTE_VALUE) / INTERVAL_MINUTE_VALUE)
         val leftHorizontalLine = DimensionUtil.turnDpToPx(context, MARGIN_CHART_LEFT)
 
         for (i in MIN_MINUTE_VALUE..MAX_MINUTE_VALUE step INTERVAL_MINUTE_VALUE) {
+            if (i == MIN_MINUTE_VALUE) leftMinute += deepGrayPaint.textSize * 0.25F    //小於二位數時, 字體要加1/4字體寬, 置中
+            if (i == 10) leftMinute -= deepGrayPaint.textSize * 0.25F                  //大於二位數後, 要扣回來
+
             bottomMinute -= when (i) {
                 MIN_MINUTE_VALUE -> 0F
                 else -> marginMinute
             }
-            canvas.drawText("$i", leftMinute, bottomMinute + deepGrayPaint.textSize * 0.5F, deepGrayPaint)  //+0.5F是使字體垂直置中
+            canvas.drawText("$i", leftMinute, bottomMinute + deepGrayPaint.textSize * 0.25F, deepGrayPaint)  //+0.25F是使字體垂直置中
             canvas.drawLine(leftHorizontalLine, bottomMinute, width.toFloat(), bottomMinute, grayPaint)
         }
 
-        //畫Y軸標題
+        //畫X軸標題
         canvas.drawText("時間", width.toFloat() - grayPaint.textSize * 2, height.toFloat() - grayPaint.textSize * 0.5F, grayPaint)
 
-        //畫Y軸座標
+        //畫X軸座標
         val bottomHour = height - DimensionUtil.turnDpToPx(context, MARGIN_CHART_BOTTOM) + deepGrayPaint.textSize * 1.5F
         var leftHour = DimensionUtil.turnDpToPx(context, MARGIN_CHART_LEFT)
         val marginHour = (width - DimensionUtil.turnDpToPx(context, MARGIN_CHART_LEFT) - deepGrayPaint.textSize * 2) / ((MAX_HOUR_VALUE - MIN_HOUR_VALUE) / INTERVAL_HOUR_VALUE)
